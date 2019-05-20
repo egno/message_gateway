@@ -82,6 +82,7 @@ def getGateway(business_id):
 @app.route('/send')
 def send_message():
   print('send_message: ', request.args)
+  app.logger('IN: ', request.args)
   phone = request.args.get('phone')
   if phone == None:
     return json.dumps({'error': 'No phone'}) 
@@ -93,7 +94,10 @@ def send_message():
     business_id = None
   time = request.args.get('time', '')
 
-  gateway, account = getGateway(business_id)
+  try:
+    gateway, account = getGateway(business_id)
+  except Exception as e:
+    return json.dumps({'error': "{0}".format(e)}) 
   print('gateway, account:', gateway, account)
   transaction_id = db.db_log(account.get('business_id'), request.args)['id']
   print('Transaction: ',transaction_id)
