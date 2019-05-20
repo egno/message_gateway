@@ -82,7 +82,7 @@ def getGateway(business_id):
 @app.route('/send')
 def send_message():
   print('send_message: ', request.args)
-  app.logger('IN: ', request.args)
+  app.logger.info('IN: ', request.args)
   phone = request.args.get('phone')
   if phone == None:
     return json.dumps({'error': 'No phone'}) 
