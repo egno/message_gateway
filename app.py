@@ -7,11 +7,18 @@ import re
 import json
 import db
 from config import CONFIG as config
+import logging
+
 
 DEFAULT_SMS_CONFIG = config['DEFAULT']['SMS']
 
 app = Flask(__name__)
 CORS(app)
+
+gunicorn_error_logger = logging.getLogger('gunicorn.error')
+app.logger.handlers.extend(gunicorn_error_logger.handlers)
+app.logger.setLevel(logging.DEBUG)
+
 
 def get_folder(headers):
     #print(headers)
@@ -53,6 +60,7 @@ def getDBAccountInfo(business_id):
   if business_id == None:
     return {'business_id': None}
   if not valid_uuid(business_id):
+    app.logger.debug("Bad business ID:", business_id)
     raise ValueError("Bad business ID")
   account = db.db_account(business_id)
   return account[0]
@@ -60,6 +68,7 @@ def getDBAccountInfo(business_id):
 
 def getGateway(business_id):
   if not business_id == None and not valid_uuid(business_id):
+    app.logger.debug("Bad business ID:", business_id)
     raise ValueError("Bad business ID")
   if business_id == None:
     notification_settings=DEFAULT_SMS_CONFIG
@@ -68,9 +77,11 @@ def getGateway(business_id):
     account = getDBAccountInfo(business_id)
     # print(account)
     if account == None:
+      app.logger.debug("Business account not found")
       raise ValueError("Business account not found")
     notification_settings = account.get('notification_settings')
   if notification_settings == None:
+    app.logger.debug("Notification settings not found")
     raise ValueError("Notification settings not found")
   providerInfo = notification_settings.get('provider')
   # print('providerInfo:', providerInfo)
@@ -82,12 +93,14 @@ def getGateway(business_id):
 @app.route('/send')
 def send_message():
   print('send_message: ', request.args)
-  app.logger.info('IN: ', request.args)
+  app.logger.info(f'IN: {request.args}')
   phone = request.args.get('phone')
   if phone == None:
+    app.logger.debug("No phone")
     return json.dumps({'error': 'No phone'}) 
   text = request.args.get('text')
   if text == None:
+    app.logger.debug("No text")
     return json.dumps({'error': 'No text'})
   business_id = request.args.get('business_id', '')
   if business_id == '':
@@ -97,6 +110,7 @@ def send_message():
   try:
     gateway, account = getGateway(business_id)
   except Exception as e:
+    app.logger.error("error: {0}".format(e))
     return json.dumps({'error': "{0}".format(e)}) 
   print('gateway, account:', gateway, account)
   transaction_id = db.db_log(account.get('business_id'), request.args)['id']
@@ -104,6 +118,7 @@ def send_message():
   if transaction_id == None:
     raise ValueError("Transaction was not opened")
   res = gateway.send(phone, text, time)
+  app.logger.debug("Response:", res)
   db.db_log_update(transaction_id, {'response': res})
   try:
     return json.dumps({'response': res, 'transaction': transaction_id})
