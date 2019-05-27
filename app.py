@@ -60,7 +60,7 @@ def getDBAccountInfo(business_id):
   if business_id == None:
     return {'business_id': None}
   if not valid_uuid(business_id):
-    app.logger.debug("Bad business ID:", business_id)
+    app.logger.debug("Bad business ID: {business_id}")
     raise ValueError("Bad business ID")
   account = db.db_account(business_id)
   return account[0]
@@ -68,7 +68,7 @@ def getDBAccountInfo(business_id):
 
 def getGateway(business_id):
   if not business_id == None and not valid_uuid(business_id):
-    app.logger.debug("Bad business ID:", business_id)
+    app.logger.debug(f"Bad business ID: {business_id}")
     raise ValueError("Bad business ID")
   if business_id == None:
     notification_settings=DEFAULT_SMS_CONFIG
@@ -118,7 +118,7 @@ def send_message():
   if transaction_id == None:
     raise ValueError("Transaction was not opened")
   res = gateway.send(phone, text, time)
-  app.logger.debug("Response:", res)
+  app.logger.debug(f"Response: {res}")
   db.db_log_update(transaction_id, {'response': res})
   try:
     return json.dumps({'response': res, 'transaction': transaction_id})
