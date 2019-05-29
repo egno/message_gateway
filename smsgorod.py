@@ -8,7 +8,7 @@ class Gateweay(object):
 
     def __init__(self, account):
         self.key = account.get('key','')
-        self.sender = account.get('sender','UNO')
+        self.sender = account.get('sender','UNO.salon')
 
     def params(self):
         return {'apiKey': self.key}
