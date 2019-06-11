@@ -44,7 +44,8 @@ def get_folder(headers):
 def provider(providerName):
   providers = {
     'Stream Telecom': streamtel.Gateweay,
-    'SMS gorod': smsgorod.Gateweay
+    'SMS gorod': smsgorod.Gateweay,
+    'Beeline': beeline.Gateway
   }
   print('provider', providers[providerName])
   return providers[providerName]
