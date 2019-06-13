@@ -35,7 +35,7 @@ class Gateweay(object):
     def status(self, ID):
         data = {
                     'user': self.login, 
-                    'pass': self.password
+                    'pass': self.password,
                     "action": "status",
                     "sms_id": ID
                 }
