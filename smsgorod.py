@@ -37,7 +37,9 @@ class Gateweay(object):
         res = post(self._apiGateway + 'create', json=params, headers=headers)
         print('POST: ', res, res.status_code)
         print(res.url, res.text)
-        return res.json()
+        response=res.json()
+        status=response.get('status','error') != 'error'
+        return {'success': status, 'response': response}
 
     def status(self, ID):
         pass
