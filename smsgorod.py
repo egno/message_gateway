@@ -14,6 +14,9 @@ class Gateway(object):
         return {'apiKey': self.key}
 
     def send(self, destination, text, time = None):
+        if self.key == '':
+            return {'success': False, 'details': 'No API key'}
+
         params = self.params()
         sms = {
                     "channel": "char",
