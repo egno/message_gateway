@@ -1,7 +1,7 @@
 from singleton import Singleton
 from requests import get, post
 import json
-from xmltodict
+import xmltodict
 
 class Gateweay(object):
 
