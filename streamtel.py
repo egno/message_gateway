@@ -1,7 +1,7 @@
 from singleton import Singleton
 from requests import get
 
-class Gateweay(object):
+class Gateway(object):
 
     _apiGateway = 'https://gateway.api.sc/get/'
 

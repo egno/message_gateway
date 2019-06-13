@@ -3,7 +3,7 @@ from requests import get, post
 import json
 import xmltodict
 
-class Gateweay(object):
+class Gateway(object):
 
     _apiGateway = 'https://beeline.amega-inform.ru/sms_send/'
 

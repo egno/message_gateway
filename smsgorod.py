@@ -2,7 +2,7 @@ from singleton import Singleton
 from requests import get, post
 import json
 
-class Gateweay(object):
+class Gateway(object):
 
     _apiGateway = 'https://new.smsgorod.ru/apiSms/'
 
