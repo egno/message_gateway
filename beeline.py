@@ -16,7 +16,7 @@ class Gateweay(object):
     def send(self, destination, text, time = None):
         data = {
                     'user': self.login, 
-                    'pass': self.password
+                    'pass': self.password,
                     "action": "post_sms",
                     "target": f'+{destination}',
                     "message": text,
