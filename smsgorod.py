@@ -14,7 +14,7 @@ class Gateway(object):
         return {'apiKey': self.key}
 
     def send(self, destination, text, time = None):
-        if self.key == '':
+        if self.key is None or self.key == '':
             return {'success': False, 'details': 'No API key'}
 
         params = self.params()
