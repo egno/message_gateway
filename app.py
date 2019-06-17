@@ -6,7 +6,8 @@ import smsgorod
 import beeline
 import re
 import json
-import db
+# import db
+import billing
 from config import CONFIG as config
 import logging
 
@@ -19,27 +20,6 @@ CORS(app)
 gunicorn_error_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers.extend(gunicorn_error_logger.handlers)
 app.logger.setLevel(logging.DEBUG)
-
-
-def get_folder(headers):
-    #print(headers)
-    if 'businessid' in headers and len(headers['businessid']) > 0:
-        url = 'http://localhost:3000/my_business?id=eq.'+headers['businessid']
-        try:
-          res = get(url, headers={'Authorization':headers['Authorization']}, timeout=3)
-          j = res.json()
-          return j[0]['id']
-        except Exception:
-          pass
-    else:
-        url = 'http://localhost:3000/rpc/me'
-        try:
-          res = post(url, headers={'Authorization':headers['Authorization']}, timeout=3)
-          j = res.json()
-          print(j)
-          return j['id'][:9]
-        except Exception:
-          pass
 
 
 def provider(providerName):
@@ -64,11 +44,14 @@ def getDBAccountInfo(business_id):
   if not valid_uuid(business_id):
     app.logger.debug("Bad business ID: {business_id}")
     raise ValueError("Bad business ID")
-  account = db.db_account(business_id)
+  # account = db.db_account(business_id)
+  notification_settings=DEFAULT_SMS_CONFIG
+  account=[{'business_id': business_id, 'notification_settings': DEFAULT_SMS_CONFIG}]
   return account[0]
 
 
 def getGateway(business_id):
+  app.logger.info(f'getGateway: {business_id}')
   if not business_id == None and not valid_uuid(business_id):
     app.logger.debug(f"Bad business ID: {business_id}")
     raise ValueError("Bad business ID")
@@ -88,7 +71,7 @@ def getGateway(business_id):
   providerInfo = notification_settings.get('provider')
   # print('providerInfo:', providerInfo)
   gateway = provider(providerInfo.get('name'))(providerInfo)
-  # print('getGateway', gateway, account)
+  app.logger.info(f'getGateway {gateway}, {account}')
   return gateway, account
 
 
@@ -96,6 +79,7 @@ def getGateway(business_id):
 def send_message():
   print('send_message: ', request.args)
   app.logger.info(f'IN: {request.args}')
+  amount = 30
   phone = request.args.get('phone')
   if phone == None:
     app.logger.debug("No phone")
@@ -114,14 +98,20 @@ def send_message():
   except Exception as e:
     app.logger.error("error: {0}".format(e))
     return json.dumps({'error': "{0}".format(e)}) 
-  print('gateway, account:', gateway, account)
-  transaction_id = db.db_log(account.get('business_id'), request.args)['id']
-  print('Transaction: ',transaction_id)
-  if transaction_id == None:
-    raise ValueError("Transaction was not opened")
+
   res = gateway.send(phone, text, time)
+
   app.logger.debug(f"Response: {res}")
-  db.db_log_update(transaction_id, {'response': res})
+
+  transaction_id = None
+  transaction_result = None
+  if res.get('success', False):
+    transaction_id, transaction_result = billing.SMSReserveSum(business=business_id, amount=amount, params={'gatewayResponse': res})
+
+  app.logger.debug(f'Transaction: {transaction_id}')
+  if transaction_id == None:
+    raise ValueError("Transaction was not created")
+  
   try:
     return json.dumps({'response': res, 'transaction': transaction_id})
   except Exception as e:
