@@ -128,7 +128,8 @@ def check_messages():
     app.logger.error("error: {0}".format(e))
     return json.dumps({'error': "{0}".format(e)}) 
 
-  transactions = data.get('transactions')
+  transactions = billing.getWaitingTransactions()
+
   app.logger.debug(f"transactions: {transactions}")
   IDs = [item.get('id') for item in transactions]
 
@@ -139,7 +140,7 @@ def check_messages():
   app.logger.debug(f"costs: {costs}")
 
   for sms in costs:
-    foundTransactions = [item for item in transactions if item.get('id')==sms.get('id')]
+    foundTransactions = [item for item in transactions if str(item.get('id'))==str(sms.get('id'))]
     if len(foundTransactions) != 1:
       app.logger.debug(f"Wrong SMS ID: {sms}")
       continue

@@ -30,3 +30,9 @@ def SMSDelivered(business, amount, transactionId=None, params=None):
     res = postTransaction('SMSDelivered', data)
     id = res.get('transaction',{}).get('id')
     return id, res
+
+def getWaitingTransactions():
+    url = f"{BILLING_GONFIG.get('URL','/')}waiting"
+    req = get(url)
+    res = req.json()
+    return res
