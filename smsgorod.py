@@ -44,9 +44,30 @@ class Gateway(object):
         status=response.get('status','error') != 'error'
         return {'success': status, 'response': response}
 
-    def status(self, ID):
-        pass
-        
+    def status(self, IDs):
+        if self.key is None or self.key == '':
+            return {'success': False, 'details': 'No API key'}
+        params = self.params()
+        params['apiSmsIdList'] = IDs
+        headers = {
+            'Content-type': 'application/json', 
+            'accept': 'application/json'
+        }
+        res = post(self._apiGateway + 'get', json=params, headers=headers)
+        return res.json()
+
+    def messageList(self):
+        if self.key is None or self.key == '':
+            return {'success': False, 'details': 'No API key'}
+        params = self.params()
+        headers = {
+            'Content-type': 'application/json', 
+            'accept': 'application/json'
+        }
+        res = get(self._apiGateway + 'getSmsList', params=params, headers=headers)
+        return res.json()
+
+
     def balance(self):
         pass
 

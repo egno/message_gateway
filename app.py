@@ -105,8 +105,8 @@ def send_message():
 
   transaction_id = None
   transaction_result = None
-  if res.get('success', False):
-    transaction_id, transaction_result = billing.SMSReserveSum(business=business_id, amount=amount, params={'gatewayResponse': res})
+  # if res.get('success', False):
+  transaction_id, transaction_result = billing.SMSReserveSum(business=business_id, amount=amount, params={'gatewayResponse': res, 'provider': DEFAULT_SMS_CONFIG.get('provider',{}).get('name')})
 
   app.logger.debug(f'Transaction: {transaction_id}')
   if transaction_id == None:
@@ -114,6 +114,41 @@ def send_message():
   
   try:
     return json.dumps({'response': res, 'transaction': transaction_id})
+  except Exception as e:
+    return json.dumps({'error': "{0}".format(e)}) 
+
+@app.route('/check', methods=['POST'])
+def check_messages():
+  
+  data = request.get_json()
+
+  try:
+    gateway, account = getGateway(None)
+  except Exception as e:
+    app.logger.error("error: {0}".format(e))
+    return json.dumps({'error': "{0}".format(e)}) 
+
+  transactions = data.get('transactions')
+  app.logger.debug(f"transactions: {transactions}")
+  IDs = [item.get('id') for item in transactions]
+
+  res = gateway.status(IDs)
+
+  costs = [item for item in res.get('data')]
+
+  app.logger.debug(f"costs: {costs}")
+
+  for sms in costs:
+    foundTransactions = [item for item in transactions if item.get('id')==sms.get('id')]
+    if len(foundTransactions) != 1:
+      app.logger.debug(f"Wrong SMS ID: {sms}")
+      continue
+
+    if sms.get('status') == 'delivered': 
+      transaction_id, transaction_result = billing.SMSDelivered(business=foundTransactions[0].get('business'), amount=float(sms.get('cost')), transactionId=foundTransactions[0].get('transaction'), params={'smsStatus': sms, 'provider': foundTransactions[0].get('provider')})
+
+  try:
+    return json.dumps({'response': res})
   except Exception as e:
     return json.dumps({'error': "{0}".format(e)}) 
 

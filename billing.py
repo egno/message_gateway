@@ -13,12 +13,20 @@ def postTransaction(operation, params):
     return res
 
 def SMSReserveSum(business, amount, params=None):
-    data = {
-        'amount': amount, 
-        'business': business
-        }
-    if not params is None:
-        data['info'] = params
+    data = params or {}
+    data['amount'] = amount 
+    data['business'] = business
     res = postTransaction('SMSReserveSum', data)
+    id = res.get('transaction',{}).get('id')
+    return id, res
+
+
+def SMSDelivered(business, amount, transactionId=None, params=None):
+    data = params or {}
+    data['amount'] = amount 
+    data['business'] = business
+    if not transactionId is None:
+        data['reservedId'] = transactionId
+    res = postTransaction('SMSDelivered', data)
     id = res.get('transaction',{}).get('id')
     return id, res
