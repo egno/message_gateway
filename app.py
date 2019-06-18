@@ -120,7 +120,7 @@ def send_message():
     # TODO указать причину отмены
     transaction_id, transaction_result = billing.undoTransaction(transactionId=transaction_id, params={'gatewayResponse': res, 'provider': DEFAULT_SMS_CONFIG.get('provider',{}).get('name')})
     # опять резервируем, но уже с ID провайдера СМС, чтобы потом проверить статус СМС
-    transaction_id, transaction_result = billing.SMSReserveSum(business=business_id, amount=amount, params={'gatewayResponse': res, 'provider': DEFAULT_SMS_CONFIG.get('provider',{}).get('name')}))
+    transaction_id, transaction_result = billing.SMSReserveSum(business=business_id, amount=amount, params={'gatewayResponse': res, 'provider': DEFAULT_SMS_CONFIG.get('provider',{}).get('name')})
   else:
     # Отменяем резервирование
     # TODO указать причину отмены
