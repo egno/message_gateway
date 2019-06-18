@@ -99,10 +99,6 @@ def send_message():
     app.logger.error("error: {0}".format(e))
     return json.dumps({'error': "{0}".format(e)}) 
 
-  res = gateway.send(phone, text, time)
-
-  app.logger.debug(f"Response: {res}")
-
   transaction_id = None
   transaction_result = None
   # if res.get('success', False):
@@ -111,7 +107,14 @@ def send_message():
   app.logger.debug(f'Transaction: {transaction_id}')
   if transaction_id == None:
     raise ValueError("Transaction was not created")
-  
+
+  res = gateway.send(phone, text, time)
+  app.logger.debug(f"Response: {res}")
+
+  if res.get('success', False):
+    transaction_id, transaction_result = billing.undoTransaction(business=business_id, amount=amount, params={'gatewayResponse': res, 'provider': DEFAULT_SMS_CONFIG.get('provider',{}).get('name')})
+
+
   try:
     return json.dumps({'response': res, 'transaction': transaction_id})
   except Exception as e:

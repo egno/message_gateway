@@ -1,4 +1,4 @@
-from requests import get, post
+from requests import get, post, delete
 from config import CONFIG as config
 
 BILLING_GONFIG = config['BILLING']
@@ -34,5 +34,11 @@ def SMSDelivered(business, amount, transactionId=None, params=None):
 def getWaitingTransactions():
     url = f"{BILLING_GONFIG.get('URL','/')}waiting"
     req = get(url)
+    res = req.json()
+    return res
+
+def undoTransaction(transactionId, params=None):
+    url = f"{BILLING_GONFIG.get('URL','/')}transaction/{transactionId}"
+    req = delete(url)
     res = req.json()
     return res
