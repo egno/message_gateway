@@ -113,20 +113,14 @@ def send_message():
   res = gateway.send(phone, text, time)
   app.logger.debug(f"Response: {res}")
 
-  if res.get('success', False):
-    # СМС отправлена
-    if not transaction_id is None:
-      # Отменяем резервирование
-      # TODO указать причину отмены
-      transaction_id, transaction_result = billing.undoTransaction(transactionId=transaction_id, params={'gatewayResponse': res, 'provider': DEFAULT_SMS_CONFIG.get('provider',{}).get('name')})
+  if not transaction_id is None:
+    # Отменяем резервирование
+    # TODO указать причину отмены
+    transaction_id, transaction_result = billing.undoTransaction(transactionId=transaction_id, params={'gatewayResponse': res, 'provider': DEFAULT_SMS_CONFIG.get('provider',{}).get('name')})
 
+  if res.get('success', False):
     # опять резервируем, но уже с ID провайдера СМС, чтобы потом проверить статус СМС
     transaction_id, transaction_result = billing.SMSReserveSum(business=business_id, amount=amount, params={'gatewayResponse': res, 'provider': DEFAULT_SMS_CONFIG.get('provider',{}).get('name')})
-  else:
-    if not transaction_id is None:
-      # Отменяем резервирование
-      # TODO указать причину отмены
-      transaction_id, transaction_result = billing.undoTransaction(transactionId=transaction_id, params={'gatewayResponse': res, 'provider': DEFAULT_SMS_CONFIG.get('provider',{}).get('name')})
 
   try:
     return json.dumps({'response': res, 'transaction': transaction_id})
