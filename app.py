@@ -79,7 +79,7 @@ def getGateway(business_id):
 def send_message():
   print('send_message: ', request.args)
   app.logger.info(f'IN: {request.args}')
-  amount = 30
+  amount = DEFAULT_SMS_CONFIG.get('price', 5)
   phone = request.args.get('phone')
   if phone == None:
     app.logger.debug("No phone")
