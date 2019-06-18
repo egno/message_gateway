@@ -134,6 +134,10 @@ def check_messages():
   IDs = [item.get('id') for item in transactions]
 
   res = gateway.status(IDs)
+  app.logger.debug(f"Message statuses: {res}")
+
+  if res.get('status') == 'error':
+    return json.dumps({'response': res})
 
   costs = [item for item in res.get('data')]
 
