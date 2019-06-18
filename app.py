@@ -101,7 +101,7 @@ def send_message():
 
   transaction_id = None
   transaction_result = None
-  # if res.get('success', False):
+
   transaction_id, transaction_result = billing.SMSReserveSum(business=business_id, amount=amount, params={'gatewayResponse': res, 'provider': DEFAULT_SMS_CONFIG.get('provider',{}).get('name')})
 
   app.logger.debug(f'Transaction: {transaction_id}')
@@ -111,7 +111,7 @@ def send_message():
   res = gateway.send(phone, text, time)
   app.logger.debug(f"Response: {res}")
 
-  if res.get('success', False):
+  if not res.get('success', False):
     transaction_id, transaction_result = billing.undoTransaction(business=business_id, amount=amount, params={'gatewayResponse': res, 'provider': DEFAULT_SMS_CONFIG.get('provider',{}).get('name')})
 
 
