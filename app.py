@@ -102,18 +102,29 @@ def send_message():
   transaction_id = None
   transaction_result = None
 
-  transaction_id, transaction_result = billing.SMSReserveSum(business=business_id, amount=amount, params={'gatewayResponse': res, 'provider': DEFAULT_SMS_CONFIG.get('provider',{}).get('name')})
+  # пытаемся зарезервировать сумму на счете
+  transaction_id, transaction_result = billing.SMSReserveSum(business=business_id, amount=amount, params={})
 
   app.logger.debug(f'Transaction: {transaction_id}')
   if transaction_id == None:
     raise ValueError("Transaction was not created")
 
+  # сумма успешно зарезервирована
+  # оправляем СМС
   res = gateway.send(phone, text, time)
   app.logger.debug(f"Response: {res}")
 
-  if not res.get('success', False):
-    transaction_id, transaction_result = billing.undoTransaction(business=business_id, amount=amount, params={'gatewayResponse': res, 'provider': DEFAULT_SMS_CONFIG.get('provider',{}).get('name')})
-
+  if res.get('success', False):
+    # СМС отправлена
+    # Отменяем резервирование
+    # TODO указать причину отмены
+    transaction_id, transaction_result = billing.undoTransaction(transactionId=transaction_id, params={'gatewayResponse': res, 'provider': DEFAULT_SMS_CONFIG.get('provider',{}).get('name')})
+    # опять резервируем, но уже с ID провайдера СМС, чтобы потом проверить статус СМС
+    transaction_id, transaction_result = billing.SMSReserveSum(business=business_id, amount=amount, params={'gatewayResponse': res, 'provider': DEFAULT_SMS_CONFIG.get('provider',{}).get('name')}))
+  else:
+    # Отменяем резервирование
+    # TODO указать причину отмены
+    transaction_id, transaction_result = billing.undoTransaction(transactionId=transaction_id, params={'gatewayResponse': res, 'provider': DEFAULT_SMS_CONFIG.get('provider',{}).get('name')})
 
   try:
     return json.dumps({'response': res, 'transaction': transaction_id})
