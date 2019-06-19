@@ -143,6 +143,9 @@ def check_messages():
   app.logger.debug(f"transactions: {transactions}")
   IDs = [item.get('id') for item in transactions]
 
+  if len(IDs) == 0:
+     return json.dumps({'result': 'no data'}) 
+
   res = gateway.status(IDs)
   app.logger.debug(f"Message statuses: {res}")
 
