@@ -41,7 +41,7 @@ class Gateway(object):
         print('POST: ', res, res.status_code)
         print(res.url, res.text)
         response=res.json()
-        status=response.get('status','error') != 'error'
+        status=response.get('status','error') != 'error' and response.get('status','error') != 'channel'
         return {'success': status, 'response': response}
 
     def status(self, IDs):
