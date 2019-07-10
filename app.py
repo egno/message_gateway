@@ -105,9 +105,9 @@ def send_message():
   if not business_id is None:
     # пытаемся зарезервировать сумму на счете
     transaction_id, transaction_result = billing.SMSReserveSum(business=business_id, amount=amount, params={})
-    app.logger.debug(f'Transaction: {transaction_id}')
+    app.logger.debug(f'Transaction: {transaction_id}, {transaction_result}')
     if transaction_id == None:
-      raise ValueError("Transaction was not created")
+      return json.dumps(transaction_result or {'error', 'Transaction failed'})
 
   # оправляем СМС
   res = gateway.send(phone, text, time)
