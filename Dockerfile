@@ -2,9 +2,6 @@ FROM gitlab.unosalon.ml:4567/containers/flask:latest
 
 COPY . /app
 
-RUN apk update && \
-    apk add --virtual build-deps gcc musl-dev && \
-    apk add postgresql-dev
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 WORKDIR /app
