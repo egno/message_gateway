@@ -34,7 +34,9 @@ def SMSDelivered(business, amount, transactionId=None, params=None):
 def getWaitingTransactions():
     url = f"{BILLING_GONFIG.get('URL','/')}waiting"
     req = get(url)
-    res = req.json()
+    res = None
+    if not req is None:
+        res = req.json()
     return res
 
 def undoTransaction(transactionId, params=None):
