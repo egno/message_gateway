@@ -50,7 +50,7 @@ def getDBAccountInfo(business_id):
   if business_id == None:
     return {'business_id': None}
   if not valid_uuid(business_id):
-    app.logger.debug("Bad business ID: {business_id}")
+    app.logger.debug(f"Bad business ID: {business_id}")
     raise ValueError("Bad business ID")
   # account = db.db_account(business_id)
   notification_settings=DEFAULT_SMS_CONFIG
