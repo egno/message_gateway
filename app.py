@@ -52,7 +52,6 @@ def getDBAccountInfo(business_id):
   if not valid_uuid(business_id):
     app.logger.debug(f"Bad business ID: {business_id}")
     raise ValueError("Bad business ID")
-  # account = db.db_account(business_id)
   notification_settings=DEFAULT_SMS_CONFIG
   account=[{'business_id': business_id, 'notification_settings': DEFAULT_SMS_CONFIG}]
   return account[0]
@@ -68,7 +67,6 @@ def getGateway(business_id):
     account = {'business_id': None}
   else:
     account = getDBAccountInfo(business_id)
-    # print(account)
     if account == None:
       app.logger.debug("Business account not found")
       raise ValueError("Business account not found")
@@ -77,7 +75,6 @@ def getGateway(business_id):
     app.logger.debug("Notification settings not found")
     raise ValueError("Notification settings not found")
   providerInfo = notification_settings.get('provider')
-  # print('providerInfo:', providerInfo)
   gateway = provider(providerInfo.get('name'))(providerInfo)
   app.logger.info(f'getGateway {gateway}, {account}')
   return gateway, account
