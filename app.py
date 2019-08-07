@@ -27,7 +27,7 @@ DEFAULT_SMS_CONFIG = {
                 'key': os.getenv('SMS_DEFAULT_PROVIDER_KEY'), 
 		            'sender': os.getenv('SMS_DEFAULT_PROVIDER_SENDER')
             },
-            'price': os.getenv('SMS_DEFAULT_PRICE')
+            'price': float(os.getenv('SMS_DEFAULT_PRICE'))
           }
 
 
