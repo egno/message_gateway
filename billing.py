@@ -1,11 +1,15 @@
 from requests import get, post, delete
-from config import CONFIG as config
+from dotenv import load_dotenv
+import os
 
-BILLING_GONFIG = config['BILLING']
+load_dotenv()
+BILLING_API_URL = os.getenv("BILLING_API_URL")
 
+if BILLING_API_URL is None:
+    raise ValueError("BILLING_API_URL is not defined")
 
 def postTransaction(operation, params):
-    url = f"{BILLING_GONFIG.get('URL','/')}transaction"
+    url = f"{BILLING_API_URL}/transaction"
     data = params
     data['type'] = operation
     req = post(url, json=data)
@@ -32,7 +36,7 @@ def SMSDelivered(business, amount, transactionId=None, params=None):
     return id, res
 
 def getWaitingTransactions():
-    url = f"{BILLING_GONFIG.get('URL','/')}waiting"
+    url = f"{BILLING_API_URL}/waiting"
     req = get(url)
     res = None
     if not req is None:
@@ -40,7 +44,7 @@ def getWaitingTransactions():
     return res
 
 def undoTransaction(transactionId, params=None):
-    url = f"{BILLING_GONFIG.get('URL','/')}transaction/{transactionId}"
+    url = f"{BILLING_API_URL}/transaction/{transactionId}"
     req = delete(url)
     res = req.json()
     return res

@@ -6,13 +6,13 @@ import smsgorod
 import beeline
 import re
 import json
-# import db
 import billing
-from config import CONFIG as config
 import logging
+from dotenv import load_dotenv
+import os
 
 
-DEFAULT_SMS_CONFIG = config['DEFAULT']['SMS']
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
@@ -20,6 +20,16 @@ CORS(app)
 gunicorn_error_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers.extend(gunicorn_error_logger.handlers)
 app.logger.setLevel(logging.DEBUG)
+
+DEFAULT_SMS_CONFIG = {
+            'provider': {
+                'name': os.getenv('SMS_DEFAULT_PROVIDER'),
+                'key': os.getenv('SMS_DEFAULT_PROVIDER_KEY'), 
+		            'sender': os.getenv('SMS_DEFAULT_PROVIDER_SENDER')
+            },
+            'price': os.getenv('SMS_DEFAULT_PRICE')
+          }
+
 
 
 def provider(providerName):

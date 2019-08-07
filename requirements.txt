@@ -1,6 +1,1 @@
-Flask
-flask-cors
-requests
-gunicorn
-python-dotenv
 xmltodict
