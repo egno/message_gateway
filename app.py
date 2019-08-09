@@ -127,20 +127,22 @@ def send_message():
     if transaction_id is not None:
         # Отменяем резервирование
         # TODO указать причину отмены
-        transaction_id, transaction_result =
-        billing.undoTransaction(transactionId=transaction_id, params={
-            'gatewayResponse': res,
-            'provider': DEFAULT_SMS_CONFIG.get('provider', {}).get('name')})
+        transaction_id, transaction_result = billing.undoTransaction(
+            transactionId=transaction_id, params={
+                'gatewayResponse': res,
+                'provider': DEFAULT_SMS_CONFIG.get('provider', {}).get('name')})
 
     if res.get('success', False):
         # опять резервируем, но уже с ID провайдера СМС,
         # чтобы потом проверить статус СМС
         parts = gateway.Parts(res)
         app.logger.debug(f'SMS parts: {parts}')
-        if parts not is None:
+        if parts is not None:
             amount = float(amount * float(parts))
-        transaction_id, transaction_result =
-        billing.SMSReserveSum(business=business_id, amount=amount, params={
+        transaction_id, transaction_result = billing.SMSReserveSum(
+          business=business_id, 
+          amount=amount, 
+          params={
             'gatewayResponse': res,
             'provider': DEFAULT_SMS_CONFIG.get('provider', {}).get('name')})
 
