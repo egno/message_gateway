@@ -86,7 +86,11 @@ class Gateway(object):
         # ], "status": "success"}}
 
         try:
-            return float(response.get('response', {})\
-                .get('data', [])[0].get('smsCount', None))
+            return float(
+                response.
+                get('response', {}).
+                get('data', [])[0].
+                get('smsCount', None)
+                )
         except:
             return None
