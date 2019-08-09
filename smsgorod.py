@@ -73,7 +73,7 @@ class Gateway(object):
     def balance(self):
         pass
 
-    def Parts(response):
+    def Parts(self, response):
         #  {"success": true, "response": {"data": [
         #       {"id": 340142999, "cost": 0, "phone": "79537680916",
         #           "sender": "UNO.salon", "source": "api",
