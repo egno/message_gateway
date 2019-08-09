@@ -136,8 +136,9 @@ def send_message():
         # опять резервируем, но уже с ID провайдера СМС,
         # чтобы потом проверить статус СМС
         parts = gateway.Parts(res)
+        app.logger.debug(f'SMS parts: {parts}')
         if parts not is None:
-            amount = amount * parts
+            amount = float(amount * float(parts))
         transaction_id, transaction_result =
         billing.SMSReserveSum(business=business_id, amount=amount, params={
             'gatewayResponse': res,
