@@ -25,7 +25,7 @@ class Gateway(object):
             "text": text,
             "sender": self.sender
         }
-        if time != None and time != '':
+        if time not is None and time != '':
             sms.update({"plannedAt": time})
         params.update({'sms':
                        [
