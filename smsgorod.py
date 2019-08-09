@@ -84,7 +84,8 @@ class Gateway(object):
         #           "updatedAt": 1565319610
         #       }
         # ], "status": "success"}}
-        if response is None:
-            return
-        return response.get('response', {}).get('data', []).\
-            get(0, {}).get('smsCount', None)
+
+        try:
+            return float(response.get('response', {}).get('data', [])[0].get('smsCount', None))
+        except:
+            return None
