@@ -43,13 +43,14 @@ def provider(providerName):
 
 def valid_uuid(uuid):
     regex = re.compile(
-        '^[a-f0-9]{8}-?[a-f0-9]{4}-?[a-f0-9]{4}-?[a-f0-9]{4}-?[a-f0-9]{12}\Z', re.I)
+        '^[a-f0-9]{8}-?[a-f0-9]{4}-?[a-f0-9]{4}-?[a-f0-9]{4}-?[a-f0-9]{12}\Z',
+        re.I)
     match = regex.match(uuid)
     return bool(match)
 
 
 def getDBAccountInfo(business_id):
-    if business_id == None:
+    if business_id is None:
         return {'business_id': None}
     if not valid_uuid(business_id):
         app.logger.debug(f"Bad business ID: {business_id}")
@@ -62,19 +63,19 @@ def getDBAccountInfo(business_id):
 
 def getGateway(business_id):
     app.logger.info(f'getGateway: {business_id}')
-    if not business_id == None and not valid_uuid(business_id):
+    if business_id is not None and not valid_uuid(business_id):
         app.logger.debug(f"Bad business ID: {business_id}")
         raise ValueError("Bad business ID")
-    if business_id == None:
+    if business_id is None:
         notification_settings = DEFAULT_SMS_CONFIG
         account = {'business_id': None}
     else:
         account = getDBAccountInfo(business_id)
-        if account == None:
+        if account is None:
             app.logger.debug("Business account not found")
             raise ValueError("Business account not found")
         notification_settings = account.get('notification_settings')
-    if notification_settings == None:
+    if notification_settings is None:
         app.logger.debug("Notification settings not found")
         raise ValueError("Notification settings not found")
     providerInfo = notification_settings.get('provider')
@@ -130,7 +131,9 @@ def send_message():
         transaction_id, transaction_result = billing.undoTransaction(
             transactionId=transaction_id, params={
                 'gatewayResponse': res,
-                'provider': DEFAULT_SMS_CONFIG.get('provider', {}).get('name')})
+                'provider': DEFAULT_SMS_CONFIG.get('provider', {}).get('name')
+                }
+              )
 
     if res.get('success', False):
         # опять резервируем, но уже с ID провайдера СМС,
@@ -140,10 +143,11 @@ def send_message():
         if parts is not None:
             amount = float(amount * float(parts))
         transaction_id, transaction_result = billing.SMSReserveSum(
-          business=business_id, 
-          amount=amount, 
+          business=business_id,
+          amount=amount,
           params={
             'gatewayResponse': res,
+            'parts': parts,
             'provider': DEFAULT_SMS_CONFIG.get('provider', {}).get('name')})
 
     try:
